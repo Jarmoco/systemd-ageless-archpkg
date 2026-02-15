@@ -314,7 +314,7 @@ package_systemd() {
 
 package_systemd-libs() {
   pkgdesc='systemd client libraries'
-  depends=('glibc' 'gcc-libs' 'libgcrypt' 'lz4' 'xz' 'zstd')
+  depends=('glibc' 'libgcc' 'libgcc_s.so' 'libgcrypt' 'lz4' 'xz'  'zstd')
   license+=(
     'CC0-1.0' # siphash
     'GPL-2.0-or-later WITH Linux-syscall-note' # src/basic/linux/*
