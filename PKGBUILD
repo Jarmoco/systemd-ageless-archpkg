@@ -95,6 +95,8 @@ if [ -f /.build/build.dist ] && [ -d /usr/src/packages/SOURCES ] &&  [ -d /usr/s
 fi
 
 _backports=(
+  # nspawn: allow cachestat systemcall
+  '93101e7ef04fe43c9c13b405047c36850a2f5382'
 )
 
 _reverts=(
