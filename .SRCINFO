@@ -1,7 +1,7 @@
-pkgbase = systemd
+pkgbase = systemd-ageless
 	pkgver = 260.1
 	pkgrel = 1
-	url = https://www.github.com/systemd/systemd
+	url = https://github.com/Jeffrey-Sardina/systemd
 	arch = x86_64
 	license = LGPL-2.1-or-later
 	makedepends = acl
@@ -54,7 +54,7 @@ pkgbase = systemd
 	makedepends = python-pefile
 	makedepends = linux-headers
 	conflicts = mkinitcpio<38-1
-	source = git+https://github.com/systemd/systemd#tag=v260.1?signed
+	source = git+https://github.com/Jeffrey-Sardina/systemd#branch=main
 	source = 0001-Use-Arch-Linux-device-access-groups.patch
 	source = arch.conf
 	source = loader.conf
@@ -72,11 +72,7 @@ pkgbase = systemd
 	source = 35-systemd-enqueue-marked.hook
 	source = 35-systemd-udev-reload.hook
 	source = 35-systemd-update.hook
-	validpgpkeys = 63CDA1E5D3FC22B998D20DD6327F26951A015CC4
-	validpgpkeys = A9EA9081724FFAE0484C35A1A81CEA22BC8C7E2E
-	validpgpkeys = 9A774DB5DB996C154EBBFBFDA0099A18E29326E1
-	validpgpkeys = 5C251B5FC54EB2F80F407AAAC54CA336CFEB557E
-	sha512sums = 16055c7438e8ea994dcb2e293ed97ffac53660c86667fdd748189c9e66addb9d3e3feceec70f0dd1c394c9b95d761304cee58669b9f479ec7fcce284972d7abb
+	sha512sums = SKIP
 	sha512sums = ddb9401e47d0bf01874f255803a4b2167ec631484189d29d03694101fd9c77724e735f16d99c5f4ffd8061ae78839b2826ff0e0a925a6f0dbca25f2cfb271a82
 	sha512sums = 61032d29241b74a0f28446f8cf1be0e8ec46d0847a61dadb2a4f096e8686d5f57fe5c72bcf386003f6520bc4b5856c32d63bf3efe7eb0bc0deefc9f68159e648
 	sha512sums = 3194d1f8bff31b88a79657df83632b9224b66ca2cf8fd806a3ef35cf7a43f46c09c57f3dfd02256a99b6514a8f789b7d3bcfd7e17e00e34aa55ff0c6cedb5f01
@@ -145,12 +141,15 @@ pkgname = systemd
 	provides = nss-myhostname
 	provides = systemd-tools=260.1
 	provides = udev=260.1
+	provides = systemd
 	conflicts = nss-myhostname
 	conflicts = systemd-tools
 	conflicts = udev
+	conflicts = systemd
 	replaces = nss-myhostname
 	replaces = systemd-tools
 	replaces = udev
+	replaces = systemd
 	backup = etc/systemd/coredump.conf
 	backup = etc/systemd/homed.conf
 	backup = etc/systemd/journald.conf
@@ -183,24 +182,38 @@ pkgname = systemd-libs
 	provides = libsystemd
 	provides = libsystemd.so
 	provides = libudev.so
+	provides = systemd-libs
 	conflicts = libsystemd
+	conflicts = systemd-libs
 	replaces = libsystemd
+	replaces = systemd-libs
 
 pkgname = systemd-resolvconf
 	pkgdesc = systemd resolvconf replacement (for use with systemd-resolved)
 	depends = systemd=260.1
 	provides = openresolv
 	provides = resolvconf
+	provides = systemd-resolvconf
 	conflicts = resolvconf
+	conflicts = systemd-resolvconf
+	replaces = resolvconf
+	replaces = systemd-resolvconf
 
 pkgname = systemd-sysvcompat
 	pkgdesc = sysvinit compat for systemd
 	depends = systemd=260.1
+	provides = systemd-sysvcompat
 	conflicts = sysvinit
+	conflicts = systemd-sysvcompat
+	replaces = sysvinit
+	replaces = systemd-sysvcompat
 
 pkgname = systemd-tests
 	pkgdesc = systemd tests
 	depends = systemd=260.1
+	provides = systemd-tests
+	conflicts = systemd-tests
+	replaces = systemd-tests
 
 pkgname = systemd-ukify
 	pkgdesc = Combine kernel and initrd into a signed Unified Kernel Image
@@ -211,3 +224,6 @@ pkgname = systemd-ukify
 	optdepends = python-pillow: Show the size of splash image
 	optdepends = sbsigntools: Sign the embedded kernel
 	provides = ukify
+	provides = systemd-ukify
+	conflicts = systemd-ukify
+	replaces = systemd-ukify

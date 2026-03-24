@@ -1,0 +1,5 @@
+systemd/
+src/
+pkg/
+*tar.zst
+*.log

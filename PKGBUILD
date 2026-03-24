@@ -1,4 +1,4 @@
-# Maintainer: Christian Hesse <mail@eworm.de>
+# Maintainer: Jarmoco <>
 
 # ➡️ Pushing pre-releases to [core-testing] can cause havoc, especially
 #   as all [core] packages are built there, and may be moved before.
@@ -8,7 +8,7 @@
 #     SigLevel = Required
 #     Server = https://pkgbuild.com/~eworm/$repo/$arch/
 
-pkgbase=systemd
+pkgbase=systemd-ageless
 pkgname=('systemd'
          'systemd-libs'
          'systemd-resolvconf'
@@ -22,7 +22,7 @@ pkgver=260.1
 pkgrel=1
 arch=('x86_64')
 license=('LGPL-2.1-or-later')
-url='https://www.github.com/systemd/systemd'
+url='https://github.com/Jeffrey-Sardina/systemd'
 makedepends=('acl' 'apparmor' 'cryptsetup' 'docbook-xsl' 'gperf' 'lz4' 'xz' 'pam' 'libelf'
              'intltool' 'iptables' 'kmod' 'libarchive' 'libidn2' 'libgcrypt'
              'libmicrohttpd' 'libxcrypt' 'libxslt' 'util-linux' 'linux-api-headers'
@@ -32,13 +32,9 @@ makedepends=('acl' 'apparmor' 'cryptsetup' 'docbook-xsl' 'gperf' 'lz4' 'xz' 'pam
              'bpf' 'libbpf' 'clang' 'llvm' 'curl' 'gnutls' 'python-pyelftools'
              'libpwquality' 'qrencode' 'lib32-gcc-libs' 'python-pefile' 'linux-headers')
 conflicts=("mkinitcpio<38-1")
-validpgpkeys=('63CDA1E5D3FC22B998D20DD6327F26951A015CC4'  # Lennart Poettering <lennart@poettering.net>
-              'A9EA9081724FFAE0484C35A1A81CEA22BC8C7E2E'  # Luca Boccassi <luca.boccassi@gmail.com>
-              '9A774DB5DB996C154EBBFBFDA0099A18E29326E1'  # Yu Watanabe <watanabe.yu+github@gmail.com>
-              '5C251B5FC54EB2F80F407AAAC54CA336CFEB557E') # Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl>
 # For pacman's version comparisons $pkgver is missing the dash that would be
 # in an upstream rc version so add it back when fetching the tag from github.
-source=("git+https://github.com/systemd/systemd#tag=v${pkgver/rc/-rc}?signed"
+source=("git+https://github.com/Jeffrey-Sardina/systemd#branch=main"
         '0001-Use-Arch-Linux-device-access-groups.patch'
         # bootloader files
         'arch.conf'
@@ -59,7 +55,7 @@ source=("git+https://github.com/systemd/systemd#tag=v${pkgver/rc/-rc}?signed"
         '35-systemd-enqueue-marked.hook'
         '35-systemd-udev-reload.hook'
         '35-systemd-update.hook')
-sha512sums=('16055c7438e8ea994dcb2e293ed97ffac53660c86667fdd748189c9e66addb9d3e3feceec70f0dd1c394c9b95d761304cee58669b9f479ec7fcce284972d7abb'
+sha512sums=('SKIP'
             'ddb9401e47d0bf01874f255803a4b2167ec631484189d29d03694101fd9c77724e735f16d99c5f4ffd8061ae78839b2826ff0e0a925a6f0dbca25f2cfb271a82'
             '61032d29241b74a0f28446f8cf1be0e8ec46d0847a61dadb2a4f096e8686d5f57fe5c72bcf386003f6520bc4b5856c32d63bf3efe7eb0bc0deefc9f68159e648'
             '3194d1f8bff31b88a79657df83632b9224b66ca2cf8fd806a3ef35cf7a43f46c09c57f3dfd02256a99b6514a8f789b7d3bcfd7e17e00e34aa55ff0c6cedb5f01'
@@ -101,6 +97,11 @@ _reverts=(
 )
 
 prepare() {
+  # Handle directory name mismatch between pkgbase and cloned repo
+  if [ -d "systemd" ] && [ ! -d "${_systemd_src_dir}" ]; then
+    mv systemd "${_systemd_src_dir}"
+  fi
+
   cd "${_systemd_src_dir}"
 
   # Replace cdrom/dialout/tape groups with optical/uucp/storage
@@ -203,9 +204,9 @@ package_systemd() {
            'libgcrypt' 'libxcrypt' 'libidn2' 'lz4' 'pam'
            'libelf' 'libseccomp' 'util-linux' 'xz' 'pcre2' 'audit'
            'openssl' 'libcrypto.so' 'libssl.so')
-  provides=('nss-myhostname' "systemd-tools=$pkgver" "udev=$pkgver")
-  replaces=('nss-myhostname' 'systemd-tools' 'udev')
-  conflicts=('nss-myhostname' 'systemd-tools' 'udev')
+  provides=('nss-myhostname' "systemd-tools=$pkgver" "udev=$pkgver" 'systemd')
+  replaces=('nss-myhostname' 'systemd-tools' 'udev' 'systemd')
+  conflicts=('nss-myhostname' 'systemd-tools' 'udev' 'systemd')
   optdepends=('libmicrohttpd: systemd-journal-gatewayd and systemd-journal-remote'
               'apparmor: additional security features'
               'quota-tools: kernel-level quota management'
@@ -318,9 +319,9 @@ package_systemd-libs() {
     'CC0-1.0' # siphash
     'GPL-2.0-or-later WITH Linux-syscall-note' # src/basic/linux/*
   )
-  provides=('libsystemd' 'libsystemd.so' 'libudev.so')
-  conflicts=('libsystemd')
-  replaces=('libsystemd')
+  provides=('libsystemd' 'libsystemd.so' 'libudev.so' 'systemd-libs')
+  conflicts=('libsystemd' 'systemd-libs')
+  replaces=('libsystemd' 'systemd-libs')
 
   install -d -m0755 "$pkgdir"/usr/share/man
   mv systemd-libs/lib "$pkgdir"/usr/lib
@@ -331,8 +332,9 @@ package_systemd-libs() {
 package_systemd-resolvconf() {
   pkgdesc='systemd resolvconf replacement (for use with systemd-resolved)'
   depends=("systemd=${pkgver}")
-  provides=('openresolv' 'resolvconf')
-  conflicts=('resolvconf')
+  provides=('openresolv' 'resolvconf' 'systemd-resolvconf')
+  conflicts=('resolvconf' 'systemd-resolvconf')
+  replaces=('resolvconf' 'systemd-resolvconf')
 
   install -d -m0755 "$pkgdir"/usr/bin
   ln -s resolvectl "$pkgdir"/usr/bin/resolvconf
@@ -343,7 +345,9 @@ package_systemd-resolvconf() {
 
 package_systemd-sysvcompat() {
   pkgdesc='sysvinit compat for systemd'
-  conflicts=('sysvinit')
+  provides=('systemd-sysvcompat')
+  conflicts=('sysvinit' 'systemd-sysvcompat')
+  replaces=('sysvinit' 'systemd-sysvcompat')
   depends=("systemd=${pkgver}")
 
   install -D -m0644 -t "$pkgdir"/usr/share/man/man8 \
@@ -358,6 +362,9 @@ package_systemd-sysvcompat() {
 
 package_systemd-tests() {
   pkgdesc='systemd tests'
+  provides=('systemd-tests')
+  conflicts=('systemd-tests')
+  replaces=('systemd-tests')
   depends=("systemd=${pkgver}")
 
   install -d -m0755 "$pkgdir"/usr/lib/systemd
@@ -366,7 +373,9 @@ package_systemd-tests() {
 
 package_systemd-ukify() {
   pkgdesc='Combine kernel and initrd into a signed Unified Kernel Image'
-  provides=('ukify')
+  provides=('ukify' 'systemd-ukify')
+  conflicts=('systemd-ukify')
+  replaces=('systemd-ukify')
   depends=("systemd=${pkgver}" 'binutils' 'python-cryptography' 'python-pefile')
   optdepends=('python-pillow: Show the size of splash image'
               'sbsigntools: Sign the embedded kernel')
