@@ -8,8 +8,26 @@ This is essentially a fork of [the systemd package](https://gitlab.archlinux.org
 
 I included a script to pull from upstream, build the package and set up a local repository (build.sh).
 
+## Quick start
+I have created a pacman repo that provides the packages for the liberated systemd fork. You can add it to your `/etc/pacman.conf`, before the `[core]` repository (IMPORTANT!):
 
-## Quick Start
+```
+[systemd-ageless]
+SigLevel = Optional TrustAll
+Server = https://jarmoco.github.io/systemd-ageless/pkg/
+```
+
+After adding the repository, you can update your system:
+
+```bash
+sudo pacman -Syu
+```
+You will be asked to confirm the replacement of the official systemd packages with the liberated ones.
+
+Reboot after you are done.
+
+
+## Building locally
 
 ```bash
 ./build.sh
