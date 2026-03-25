@@ -5,11 +5,22 @@ An Arch Linux package for the [liberated systemd fork](https://github.com/Jeffre
 ## Overview
 
 This is essentially a fork of [the systemd package](https://gitlab.archlinux.org/archlinux/packaging/packages/systemd) in the Arch Linux core repository.
+Read the [quick start](#quick-start) section to learn how to install the package.
 
-I included a script to pull from upstream, build the package and set up a local repository (build.sh).
+In case you want to build the package locally, I included a script to pull from upstream, build the package and set up a local repository (build.sh).
 
 ## Quick start
-I have created a pacman repo that provides the packages for the liberated systemd fork. You can add it to your `/etc/pacman.conf`, before the `[core]` repository (IMPORTANT!):
+The pkg/ directory contains a pacman repo that provides the packages for the liberated systemd fork. You can add it to your `/etc/pacman.conf` using the following methods:
+
+### Option 1: One-liner
+
+```bash
+curl -sSL https://jarmoco.github.io/systemd-ageless-archpkg/setup-repo.sh | sudo bash
+```
+
+### Option 2: Manual
+
+Add this to your `/etc/pacman.conf`, **before** (IMPORTANT!) the `[core]` repository:
 
 ```
 [systemd-ageless]
@@ -90,6 +101,7 @@ To serve packages to other machines on your network:
 
 - `PKGBUILD` — Package build definition
 - `build.sh` — Build automation script
+- `setup-repo.sh` — Quick repo setup script (adds repo to pacman.conf)
 - `pkg/` — Built packages and repository database
 - `.SRCINFO` — Package metadata for AUR
 

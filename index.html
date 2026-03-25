@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>IGNITE — A systemd fork for Arch Linux</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Syne:wght@400;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg:       #060a0f;
+      --surface:  #0c1118;
+      --border:   #1a2535;
+      --cyan:     #00e5c8;
+      --cyan-dim: #00917e;
+      --red:      #ff3c5f;
+      --text:     #c8d8e8;
+      --muted:    #4a6070;
+      --mono:     'Share Tech Mono', monospace;
+      --sans:     'Syne', sans-serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      min-height: 100vh;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* ── GRID BACKGROUND ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(0,229,200,.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,229,200,.03) 1px, transparent 1px);
+      background-size: 48px 48px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── GLOW BLOBS ── */
+    .blob {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(120px);
+      pointer-events: none;
+      z-index: 0;
+    }
+    .blob-1 {
+      width: 600px; height: 600px;
+      top: -200px; left: -150px;
+      background: rgba(0,229,200,.07);
+    }
+    .blob-2 {
+      width: 400px; height: 400px;
+      bottom: -100px; right: -80px;
+      background: rgba(255,60,95,.06);
+    }
+
+    /* ── SCANLINES ── */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0,0,0,.18) 2px,
+        rgba(0,0,0,.18) 4px
+      );
+      pointer-events: none;
+      z-index: 999;
+    }
+
+    /* ── LAYOUT ── */
+    .page {
+      position: relative;
+      z-index: 1;
+      max-width: 80vw;
+      margin: 0 auto;
+      padding: 0 28px;
+    }
+
+    /* ── NAV ── */
+    nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 28px 0 0;
+      opacity: 0;
+      animation: fadeDown .5s .1s forwards;
+    }
+
+    .nav-logo {
+      font-family: var(--mono);
+      font-size: 13px;
+      color: var(--cyan);
+      letter-spacing: .2em;
+      text-transform: uppercase;
+    }
+    .nav-logo span { color: var(--muted); }
+
+    .nav-link {
+      font-family: var(--mono);
+      font-size: 13px;
+      color: var(--muted);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: color .2s;
+    }
+    .nav-link:hover { color: var(--cyan); }
+    .nav-link svg { width: 16px; height: 16px; }
+
+    /* ── HERO ── */
+    header {
+      padding: 100px 0 72px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid var(--border);
+      background: rgba(0,229,200,.05);
+      padding: 5px 14px;
+      border-radius: 2px;
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--cyan-dim);
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      margin-bottom: 36px;
+      opacity: 0;
+      animation: fadeUp .5s .2s forwards;
+    }
+    .badge::before {
+      content: '';
+      width: 6px; height: 6px;
+      background: var(--cyan);
+      border-radius: 50%;
+      box-shadow: 0 0 8px var(--cyan);
+      animation: pulse 2s infinite;
+    }
+
+    h1 {
+      font-family: var(--sans);
+      font-size: clamp(48px, 9vw, 80px);
+      font-weight: 800;
+      line-height: .95;
+      letter-spacing: -.03em;
+      color: #e8f4ff;
+      margin-bottom: 28px;
+      opacity: 0;
+      animation: fadeUp .5s .3s forwards;
+    }
+    h1 em {
+      font-style: normal;
+      color: var(--cyan);
+      text-shadow: 0 0 40px rgba(0,229,200,.4);
+    }
+
+    .tagline {
+      font-size: 17px;
+      line-height: 1.65;
+      color: var(--muted);
+      max-width: 520px;
+      margin-bottom: 56px;
+      opacity: 0;
+      animation: fadeUp .5s .4s forwards;
+    }
+    .tagline strong { color: var(--text); font-weight: 400; }
+
+    /* ── TERMINAL CTA ── */
+    .terminal-wrapper {
+      opacity: 0;
+      animation: fadeUp .5s .5s forwards;
+    }
+
+    .terminal-label {
+      font-family: var(--mono);
+      font-size: 14px;
+      color: var(--muted);
+      letter-spacing: .15em;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+
+    .terminal {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      overflow: hidden;
+      box-shadow:
+        0 0 0 1px rgba(0,229,200,.04),
+        0 24px 64px rgba(0,0,0,.6),
+        inset 0 1px 0 rgba(255,255,255,.03);
+      transition: border-color .2s, box-shadow .2s;
+    }
+    .terminal:focus-within,
+    .terminal:hover {
+      border-color: rgba(0,229,200,.25);
+      box-shadow:
+        0 0 0 1px rgba(0,229,200,.08),
+        0 24px 64px rgba(0,0,0,.6),
+        0 0 40px rgba(0,229,200,.05),
+        inset 0 1px 0 rgba(255,255,255,.03);
+    }
+
+    .terminal-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 16px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(255,255,255,.02);
+    }
+    .dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+    }
+    .dot-r { background: #ff5f57; }
+    .dot-y { background: #ffbd2e; }
+    .dot-g { background: #28c840; }
+    .terminal-bar-title {
+      flex: 1;
+      text-align: center;
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--muted);
+      margin-left: -60px;
+    }
+
+    .terminal-body {
+      display: flex;
+      align-items: center;
+      padding: 20px 20px 20px 24px;
+      gap: 16px;
+    }
+
+    .prompt {
+      font-family: var(--mono);
+      font-size: 16px;
+      color: var(--cyan);
+      flex-shrink: 0;
+      user-select: none;
+    }
+
+    .cmd {
+      font-family: var(--mono);
+      font-size: 16px;
+      color: #e8f4ff;
+      flex: 1;
+      white-space: nowrap;
+      overflow-x: auto;
+      scrollbar-width: none;
+      line-height: 1.5;
+      letter-spacing: .01em;
+    }
+    .cmd::-webkit-scrollbar { display: none; }
+
+    /* keyword highlights */
+    .cmd .k-curl  { color: var(--cyan); }
+    .cmd .k-flag  { color: #7ec8e3; }
+    .cmd .k-url   { color: #aad4f5; }
+    .cmd .k-pipe  { color: var(--muted); }
+    .cmd .k-shell { color: #f0c060; }
+
+    .copy-btn {
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(0,229,200,.08);
+      border: 1px solid rgba(0,229,200,.2);
+      color: var(--cyan);
+      font-family: var(--mono);
+      font-size: 14px;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      padding: 8px 16px;
+      border-radius: 2px;
+      cursor: pointer;
+      transition: background .2s, border-color .2s, transform .1s;
+      white-space: nowrap;
+    }
+    .copy-btn:hover {
+      background: rgba(0,229,200,.14);
+      border-color: rgba(0,229,200,.4);
+    }
+    .copy-btn:active { transform: scale(.97); }
+    .copy-btn svg { width: 13px; height: 13px; }
+    .copy-btn.copied {
+      background: rgba(0,229,200,.15);
+      color: #e8f4ff;
+      border-color: var(--cyan);
+    }
+
+    /* ── DIVIDER ── */
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin: 72px 0;
+      opacity: 0;
+      animation: fadeUp .5s .7s forwards;
+    }
+    .divider-line {
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+    .divider-text {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: .15em;
+      text-transform: uppercase;
+    }
+
+    /* ── PILLS ── */
+    .pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 72px;
+      opacity: 0;
+      animation: fadeUp .5s .6s forwards;
+    }
+    .pill {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      border: 1px solid var(--border);
+      padding: 9px 18px;
+      border-radius: 2px;
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--text);
+      letter-spacing: .05em;
+      background: rgba(255,255,255,.02);
+    }
+    .pill-icon { color: var(--cyan); font-size: 15px; line-height: 1; }
+
+    /* ── GITHUB ── */
+    .github-section {
+      padding-bottom: 2vh;
+      opacity: 0;
+      animation: fadeUp .5s .8s forwards;
+    }
+    .github-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      padding: 28px 32px;
+      border-radius: 4px;
+      text-decoration: none;
+      transition: border-color .2s, background .2s;
+      flex-wrap: wrap;
+    }
+    .github-card:hover {
+      border-color: rgba(0,229,200,.3);
+      background: rgba(0,229,200,.03);
+    }
+    .github-card-left {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+    .github-icon {
+      width: 40px; height: 40px;
+      color: var(--text);
+      flex-shrink: 0;
+    }
+    .github-card-text h3 {
+      font-family: var(--mono);
+      font-size: 16px;
+      color: #e8f4ff;
+      font-weight: 400;
+      margin-bottom: 4px;
+    }
+    .github-card-text p {
+      font-family: var(--mono);
+      font-size: 14px;
+      color: var(--muted);
+    }
+    .github-arrow {
+      font-family: var(--mono);
+      font-size: 13px;
+      color: var(--cyan);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+    }
+    .github-arrow svg {
+      width: 16px; height: 16px;
+      transition: transform .2s;
+    }
+    .github-card:hover .github-arrow svg { transform: translateX(4px); }
+
+    /* ── FOOTER ── */
+    footer {
+      margin-top: 10vh;
+      border-top: 1px solid var(--border);
+      padding: 28px 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+      opacity: 0;
+      animation: fadeUp .5s .9s forwards;
+    }
+    footer p {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: .08em;
+    }
+    footer a {
+      color: var(--cyan-dim);
+      text-decoration: none;
+    }
+    footer a:hover { color: var(--cyan); }
+
+    /* ── ANIMATIONS ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeDown {
+      from { opacity: 0; transform: translateY(-10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: .4; }
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 600px) {
+      .terminal-body { flex-direction: column; align-items: flex-start; }
+      .copy-btn { width: 100%; justify-content: center; }
+      .github-card { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+
+  <div class="page">
+
+    <!-- NAV -->
+    <nav>
+      <span class="nav-logo"><span>~/</span>systemd-ageless (arch)</span>
+      <a class="nav-link" href="https://github.com/Jarmoco/systemd-ageless-archpkg" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/>
+        </svg>
+        GitHub
+      </a>
+    </nav>
+
+    <!-- HERO -->
+    <header>
+      <div class="badge">Arch Linux · systemd fork · AUR-compatible</div>
+
+      <h1>Systemd Liberated.<br>No surveillance <em>ever.</em></h1>
+
+      <p class="tagline">
+        <strong>systemd-ageless</strong> is a drop-in systemd replacement for Arch Linux,
+        without the age verification checks. One command sets up the pacman repo
+        and you're running.
+      </p>
+
+      <!-- TERMINAL CTA -->
+      <div class="terminal-wrapper">
+        <p class="terminal-label">// run in your terminal to add the repo</p>
+        <div class="terminal">
+          <div class="terminal-bar">
+            <span class="dot dot-r"></span>
+            <span class="dot dot-y"></span>
+            <span class="dot dot-g"></span>
+            <span class="terminal-bar-title">bash</span>
+          </div>
+          <div class="terminal-body">
+            <span class="prompt">$</span>
+            <span class="cmd" id="cmd-text">
+              <span class="k-curl">curl</span>
+              <span class="k-flag"> -sSL </span>
+              <span class="k-url">https://jarmoco.github.io/systemd-ageless-archpkg/setup-repo.sh</span>
+              <span class="k-pipe"> | </span>
+              <span class="k-shell">sudo bash</span>
+            </span>
+            <button class="copy-btn" id="copy-btn" onclick="copyCmd()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="9" y="9" width="13" height="13" rx="2"/>
+                <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/>
+              </svg>
+              <span id="copy-label">Copy</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- PILLS -->
+    <!--
+    <div class="pills">
+      <div class="pill"><span class="pill-icon">⚡</span> Pill1</div>
+      <div class="pill"><span class="pill-icon">◈</span> Pill2</div>
+      <div class="pill"><span class="pill-icon">⊙</span> Pill3</div>
+      <div class="pill"><span class="pill-icon">◻</span> Pill4</div>
+      <div class="pill"><span class="pill-icon">⬡</span> Pill5</div>
+    </div>
+    -->
+
+    <!-- DIVIDER -->
+    <div class="divider">
+      <span class="divider-line"></span>
+      <span class="divider-text">source &amp; docs</span>
+      <span class="divider-line"></span>
+    </div>
+
+    <!-- GITHUB CARD 1 -->
+    <section class="github-section">
+      <a class="github-card" href="https://github.com/Jeffrey-Sardina/systemd" target="_blank" rel="noopener">
+        <div class="github-card-left">
+          <svg class="github-icon" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/>
+          </svg>
+          <div class="github-card-text">
+            <h3>Jeffrey-Sardina / systemd</h3>
+            <p>Liberated systemd source code</p>
+          </div>
+        </div>
+        <span class="github-arrow">
+          View on GitHub
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M5 12h14M12 5l7 7-7 7"/>
+          </svg>
+        </span>
+      </a>
+    </section>
+
+    <!-- GITHUB CARD 2 -->
+    <section class="github-section">
+      <a class="github-card" href="https://github.com/Jarmoco/systemd-ageless-archpkg" target="_blank" rel="noopener">
+        <div class="github-card-left">
+          <svg class="github-icon" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/>
+          </svg>
+          <div class="github-card-text">
+            <h3>Jarmoco / systemd-ageless-archpkg</h3>
+            <p>Arch Linux PKGBUILD for liberated systemd</p>
+          </div>
+        </div>
+        <span class="github-arrow">
+          View on GitHub
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M5 12h14M12 5l7 7-7 7"/>
+          </svg>
+        </span>
+      </a>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+
+    </footer>
+
+  </div>
+
+  <script>
+    const RAW_CMD = 'curl -sSL https://jarmoco.github.io/systemd-ageless-archpkg/setup-repo.sh | sudo bash';
+
+    function copyCmd() {
+      navigator.clipboard.writeText(RAW_CMD).then(() => {
+        const btn   = document.getElementById('copy-btn');
+        const label = document.getElementById('copy-label');
+        btn.classList.add('copied');
+        label.textContent = 'Copied!';
+        setTimeout(() => {
+          btn.classList.remove('copied');
+          label.textContent = 'Copy';
+        }, 2000);
+      });
+    }
+  </script>
+</body>
+</html>
