@@ -14,7 +14,7 @@ I have created a pacman repo that provides the packages for the liberated system
 ```
 [systemd-ageless]
 SigLevel = Optional TrustAll
-Server = https://jarmoco.github.io/systemd-ageless/pkg/
+Server = https://jarmoco.github.io/systemd-ageless-archpkg/pkg/
 ```
 
 After adding the repository, you can update your system:
