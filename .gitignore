@@ -1,4 +1,4 @@
 systemd/
 src/
-*tar.zst
+*tar.zst/
 *.log
