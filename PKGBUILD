@@ -19,7 +19,7 @@ pkgname=('systemd'
 # way or another. We use proper version for pacman here (no dash for rc
 # release!), and change in source array below.
 pkgver=260.1
-pkgrel=1
+pkgrel=2
 arch=('x86_64')
 license=('LGPL-2.1-or-later')
 url='https://www.github.com/systemd/systemd'
@@ -95,6 +95,8 @@ if [ -f /.build/build.dist ] && [ -d /usr/src/packages/SOURCES ] &&  [ -d /usr/s
 fi
 
 _backports=(
+  # changes from v260-stable
+  "v${pkgver}..deb3b034e2a54712079314cb82496740cb56c618"
 )
 
 _reverts=(
