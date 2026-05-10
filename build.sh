@@ -117,6 +117,7 @@ build_package() {
 
     if [ ! -d "$CHROOT_DIR/root" ]; then
         echo "  Creating chroot..."
+        sudo mkdir -p "$CHROOT_DIR"
         sudo mkarchroot "$CHROOT_DIR/root" base-devel
     fi
 
