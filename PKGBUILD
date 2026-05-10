@@ -19,7 +19,7 @@ pkgname=('systemd'
 # way or another. We use proper version for pacman here (no dash for rc
 # release!), and change in source array below.
 pkgver=260.1
-pkgrel=1
+pkgrel=2
 arch=('x86_64')
 license=('LGPL-2.1-or-later')
 url='https://github.com/Jeffrey-Sardina/systemd'
@@ -91,6 +91,8 @@ if [ -f /.build/build.dist ] && [ -d /usr/src/packages/SOURCES ] &&  [ -d /usr/s
 fi
 
 _backports=(
+  # changes from v260-stable
+  "v${pkgver}..deb3b034e2a54712079314cb82496740cb56c618"
 )
 
 _reverts=(
@@ -103,9 +105,6 @@ prepare() {
   fi
 
   cd "${_systemd_src_dir}"
-
-  # Replace cdrom/dialout/tape groups with optical/uucp/storage
-  patch -Np1 -i ../0001-Use-Arch-Linux-device-access-groups.patch
 
   # return if not a git repository
   if ! git status >/dev/null 2>&1; then
@@ -123,6 +122,9 @@ prepare() {
     git log --oneline "${_l}" "${_c}"
     git revert --mainline 1 --no-commit "${_c}"
   done
+
+  # Replace cdrom/dialout/tape groups with optical/uucp/storage
+  patch -Np1 -i ../0001-Use-Arch-Linux-device-access-groups.patch
 }
 
 build() {
