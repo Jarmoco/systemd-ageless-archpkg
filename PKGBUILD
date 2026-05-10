@@ -90,9 +90,10 @@ if [ -f /.build/build.dist ] && [ -d /usr/src/packages/SOURCES ] &&  [ -d /usr/s
   _systemd_src_dir="${pkgbase}-${pkgver}"
 fi
 
+# _backports reference commits/tags from the official systemd/systemd repo.
+# They will NOT work with our fork (Jeffrey-Sardina/systemd) which has
+# different tags and history. Do not add backports here.
 _backports=(
-  # changes from v260-stable
-  "v${pkgver}..deb3b034e2a54712079314cb82496740cb56c618"
 )
 
 _reverts=(
