@@ -19,7 +19,7 @@ pkgname=('systemd'
 # way or another. We use proper version for pacman here (no dash for rc
 # release!), and change in source array below.
 pkgver=260.2
-pkgrel=1
+pkgrel=2
 arch=('x86_64')
 license=('LGPL-2.1-or-later')
 url='https://www.github.com/systemd/systemd'
@@ -95,9 +95,14 @@ if [ -f /.build/build.dist ] && [ -d /usr/src/packages/SOURCES ] &&  [ -d /usr/s
 fi
 
 _backports=(
+  # hwdb/keyboard: fix match for for X+ Piccolo, again
+  '7a53696201adccecb7ad1b49ad825c02842c6845'
 )
 
 _reverts=(
+  # units: order networkd resolve hook After=network-pre.target
+  # https://github.com/systemd/systemd/issues/42353
+  '6f5079de5d5eab115635a959a68af8438f3d88fd'
 )
 
 prepare() {
