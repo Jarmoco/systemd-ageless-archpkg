@@ -226,22 +226,22 @@ package_systemd() {
               'libfido2: unlocking LUKS2 volumes with FIDO2 token'
               'libp11-kit: support PKCS#11'
               'tpm2-tss: unlocking LUKS2 volumes with TPM2')
-  backup=(etc/systemd/coredump.conf
-          etc/systemd/homed.conf
-          etc/systemd/journald.conf
-          etc/systemd/journal-remote.conf
-          etc/systemd/journal-upload.conf
-          etc/systemd/logind.conf
-          etc/systemd/networkd.conf
-          etc/systemd/oomd.conf
-          etc/systemd/pstore.conf
-          etc/systemd/resolved.conf
-          etc/systemd/sleep.conf
-          etc/systemd/system.conf
-          etc/systemd/timesyncd.conf
-          etc/systemd/user.conf
-          etc/udev/iocost.conf
-          etc/udev/udev.conf)
+  backup=('etc/systemd/coredump.conf'
+          'etc/systemd/homed.conf'
+          'etc/systemd/journald.conf'
+          'etc/systemd/journal-remote.conf'
+          'etc/systemd/journal-upload.conf'
+          'etc/systemd/logind.conf'
+          'etc/systemd/networkd.conf'
+          'etc/systemd/oomd.conf'
+          'etc/systemd/pstore.conf'
+          'etc/systemd/resolved.conf'
+          'etc/systemd/sleep.conf'
+          'etc/systemd/system.conf'
+          'etc/systemd/timesyncd.conf'
+          'etc/systemd/user.conf'
+          'etc/udev/iocost.conf'
+          'etc/udev/udev.conf')
   install=systemd.install
 
   meson install -C build --no-rebuild --destdir "$pkgdir" --quiet
