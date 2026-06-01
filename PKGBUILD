@@ -97,12 +97,11 @@ fi
 _backports=(
   # hwdb/keyboard: fix match for for X+ Piccolo, again
   '7a53696201adccecb7ad1b49ad825c02842c6845'
+  # units: drop Before=sockets.target from networkd resolve hook
+  '20572a8938dd017a23478a66c04f5768b763cb56'
 )
 
 _reverts=(
-  # units: order networkd resolve hook After=network-pre.target
-  # https://github.com/systemd/systemd/issues/42353
-  '6f5079de5d5eab115635a959a68af8438f3d88fd'
 )
 
 prepare() {
