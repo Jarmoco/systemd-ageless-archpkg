@@ -54,7 +54,7 @@ pkgbase = systemd
 	makedepends = python-pefile
 	makedepends = linux-headers
 	conflicts = mkinitcpio<38-1
-	source = git+https://github.com/systemd/systemd#tag=v260.2?signed
+	source = git+https://github.com/systemd/systemd?signed#tag=v260.2
 	source = 0001-Use-Arch-Linux-device-access-groups.patch
 	source = arch.conf
 	source = loader.conf

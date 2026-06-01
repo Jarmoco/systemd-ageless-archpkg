@@ -38,7 +38,7 @@ validpgpkeys=('63CDA1E5D3FC22B998D20DD6327F26951A015CC4'  # Lennart Poettering <
               '5C251B5FC54EB2F80F407AAAC54CA336CFEB557E') # Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl>
 # For pacman's version comparisons $pkgver is missing the dash that would be
 # in an upstream rc version so add it back when fetching the tag from github.
-source=("git+https://github.com/systemd/systemd#tag=v${pkgver/rc/-rc}?signed"
+source=("git+https://github.com/systemd/systemd?signed#tag=v${pkgver/rc/-rc}"
         '0001-Use-Arch-Linux-device-access-groups.patch'
         # bootloader files
         'arch.conf'
