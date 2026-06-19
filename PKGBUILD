@@ -18,8 +18,8 @@ pkgname=('systemd'
 # Upstream versioning is incompatible with pacman's version comparisons, one
 # way or another. We use proper version for pacman here (no dash for rc
 # release!), and change in source array below.
-pkgver=260.2
-pkgrel=2
+pkgver=261
+pkgrel=1
 arch=('x86_64')
 license=('LGPL-2.1-or-later')
 url='https://www.github.com/systemd/systemd'
@@ -38,7 +38,7 @@ validpgpkeys=('63CDA1E5D3FC22B998D20DD6327F26951A015CC4'  # Lennart Poettering <
               '5C251B5FC54EB2F80F407AAAC54CA336CFEB557E') # Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl>
 # For pacman's version comparisons $pkgver is missing the dash that would be
 # in an upstream rc version so add it back when fetching the tag from github.
-source=("git+https://github.com/systemd/systemd?signed#tag=v${pkgver/rc/-rc}"
+source=("git+https://github.com/systemd/systemd#tag=v${pkgver/rc/-rc}?signed"
         '0001-Use-Arch-Linux-device-access-groups.patch'
         # bootloader files
         'arch.conf'
@@ -59,7 +59,7 @@ source=("git+https://github.com/systemd/systemd?signed#tag=v${pkgver/rc/-rc}"
         '35-systemd-enqueue-marked.hook'
         '35-systemd-udev-reload.hook'
         '35-systemd-update.hook')
-sha512sums=('ef2268a157abe0cf1678e3eb6bb45ba2e1083f4911176a1099b2ab7bae2eecb03d48bc2057139d13740f79835bcb0cdfd762451563f29405a53685e1c49bc236'
+sha512sums=('2283e0e05eedd60ade44e64a0b820c55e8e3ed7bf67a8df79185d63facf577487df75c081c35729719ebacffbd48ecb967cfd25656987177d1044636ae3d8361'
             'ddb9401e47d0bf01874f255803a4b2167ec631484189d29d03694101fd9c77724e735f16d99c5f4ffd8061ae78839b2826ff0e0a925a6f0dbca25f2cfb271a82'
             '61032d29241b74a0f28446f8cf1be0e8ec46d0847a61dadb2a4f096e8686d5f57fe5c72bcf386003f6520bc4b5856c32d63bf3efe7eb0bc0deefc9f68159e648'
             '3194d1f8bff31b88a79657df83632b9224b66ca2cf8fd806a3ef35cf7a43f46c09c57f3dfd02256a99b6514a8f789b7d3bcfd7e17e00e34aa55ff0c6cedb5f01'
@@ -95,10 +95,6 @@ if [ -f /.build/build.dist ] && [ -d /usr/src/packages/SOURCES ] &&  [ -d /usr/s
 fi
 
 _backports=(
-  # hwdb/keyboard: fix match for for X+ Piccolo, again
-  '7a53696201adccecb7ad1b49ad825c02842c6845'
-  # units: drop Before=sockets.target from networkd resolve hook
-  '20572a8938dd017a23478a66c04f5768b763cb56'
 )
 
 _reverts=(
@@ -202,11 +198,11 @@ package_systemd() {
     'MIT-0' # documentation and config files
   )
   depends=("systemd-libs=${pkgver}"
-           'acl' 'bash' 'cryptsetup' 'libcryptsetup.so' 'dbus'
+           'acl' 'bash' 'cryptsetup' 'dbus'
            'dbus-units' 'kbd' 'kmod' 'hwdata'
            'libgcrypt' 'libxcrypt' 'libidn2' 'lz4' 'pam'
            'libelf' 'libseccomp' 'util-linux' 'xz' 'pcre2' 'audit'
-           'openssl' 'libcrypto.so' 'libssl.so')
+           'openssl')
   provides=('nss-myhostname' "systemd-tools=$pkgver" "udev=$pkgver")
   replaces=('nss-myhostname' 'systemd-tools' 'udev')
   conflicts=('nss-myhostname' 'systemd-tools' 'udev')
@@ -226,22 +222,22 @@ package_systemd() {
               'libfido2: unlocking LUKS2 volumes with FIDO2 token'
               'libp11-kit: support PKCS#11'
               'tpm2-tss: unlocking LUKS2 volumes with TPM2')
-  backup=('etc/systemd/coredump.conf'
-          'etc/systemd/homed.conf'
-          'etc/systemd/journald.conf'
-          'etc/systemd/journal-remote.conf'
-          'etc/systemd/journal-upload.conf'
-          'etc/systemd/logind.conf'
-          'etc/systemd/networkd.conf'
-          'etc/systemd/oomd.conf'
-          'etc/systemd/pstore.conf'
-          'etc/systemd/resolved.conf'
-          'etc/systemd/sleep.conf'
-          'etc/systemd/system.conf'
-          'etc/systemd/timesyncd.conf'
-          'etc/systemd/user.conf'
-          'etc/udev/iocost.conf'
-          'etc/udev/udev.conf')
+  backup=(etc/systemd/coredump.conf
+          etc/systemd/homed.conf
+          etc/systemd/journald.conf
+          etc/systemd/journal-remote.conf
+          etc/systemd/journal-upload.conf
+          etc/systemd/logind.conf
+          etc/systemd/networkd.conf
+          etc/systemd/oomd.conf
+          etc/systemd/pstore.conf
+          etc/systemd/resolved.conf
+          etc/systemd/sleep.conf
+          etc/systemd/system.conf
+          etc/systemd/timesyncd.conf
+          etc/systemd/user.conf
+          etc/udev/iocost.conf
+          etc/udev/udev.conf)
   install=systemd.install
 
   meson install -C build --no-rebuild --destdir "$pkgdir" --quiet
