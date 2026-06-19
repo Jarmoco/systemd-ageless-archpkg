@@ -18,8 +18,8 @@ pkgname=('systemd'
 # Upstream versioning is incompatible with pacman's version comparisons, one
 # way or another. We use proper version for pacman here (no dash for rc
 # release!), and change in source array below.
-pkgver=260.1
-pkgrel=2
+pkgver=261
+pkgrel=1
 arch=('x86_64')
 license=('LGPL-2.1-or-later')
 url='https://github.com/Jeffrey-Sardina/systemd'
@@ -202,11 +202,11 @@ package_systemd() {
     'MIT-0' # documentation and config files
   )
   depends=("systemd-libs=${pkgver}"
-           'acl' 'bash' 'cryptsetup' 'libcryptsetup.so' 'dbus'
+           'acl' 'bash' 'cryptsetup' 'dbus'
            'dbus-units' 'kbd' 'kmod' 'hwdata'
            'libgcrypt' 'libxcrypt' 'libidn2' 'lz4' 'pam'
            'libelf' 'libseccomp' 'util-linux' 'xz' 'pcre2' 'audit'
-           'openssl' 'libcrypto.so' 'libssl.so')
+           'openssl')
   provides=('nss-myhostname' "systemd-tools=$pkgver" "udev=$pkgver" 'systemd')
   replaces=('nss-myhostname' 'systemd-tools' 'udev' 'systemd')
   conflicts=('nss-myhostname' 'systemd-tools' 'udev' 'systemd')

@@ -1,6 +1,6 @@
 pkgbase = systemd-ageless
-	pkgver = 260.1
-	pkgrel = 2
+	pkgver = 261
+	pkgrel = 1
 	url = https://github.com/Jeffrey-Sardina/systemd
 	arch = x86_64
 	license = LGPL-2.1-or-later
@@ -98,11 +98,10 @@ pkgname = systemd
 	license = CC0-1.0
 	license = GPL-2.0-or-later
 	license = MIT-0
-	depends = systemd-libs=260.1
+	depends = systemd-libs=261
 	depends = acl
 	depends = bash
 	depends = cryptsetup
-	depends = libcryptsetup.so
 	depends = dbus
 	depends = dbus-units
 	depends = kbd
@@ -120,8 +119,6 @@ pkgname = systemd
 	depends = pcre2
 	depends = audit
 	depends = openssl
-	depends = libcrypto.so
-	depends = libssl.so
 	optdepends = libmicrohttpd: systemd-journal-gatewayd and systemd-journal-remote
 	optdepends = apparmor: additional security features
 	optdepends = quota-tools: kernel-level quota management
@@ -139,9 +136,8 @@ pkgname = systemd
 	optdepends = libp11-kit: support PKCS#11
 	optdepends = tpm2-tss: unlocking LUKS2 volumes with TPM2
 	provides = nss-myhostname
-	provides = systemd-tools=260.1
-	provides = udev=260.1
-	provides = systemd
+	provides = systemd-tools=261
+	provides = udev=261
 	conflicts = nss-myhostname
 	conflicts = systemd-tools
 	conflicts = udev
@@ -190,7 +186,7 @@ pkgname = systemd-libs
 
 pkgname = systemd-resolvconf
 	pkgdesc = systemd resolvconf replacement (for use with systemd-resolved)
-	depends = systemd=260.1
+	depends = systemd=261
 	provides = openresolv
 	provides = resolvconf
 	provides = systemd-resolvconf
@@ -201,8 +197,7 @@ pkgname = systemd-resolvconf
 
 pkgname = systemd-sysvcompat
 	pkgdesc = sysvinit compat for systemd
-	depends = systemd=260.1
-	provides = systemd-sysvcompat
+	depends = systemd=261
 	conflicts = sysvinit
 	conflicts = systemd-sysvcompat
 	replaces = sysvinit
@@ -210,14 +205,11 @@ pkgname = systemd-sysvcompat
 
 pkgname = systemd-tests
 	pkgdesc = systemd tests
-	depends = systemd=260.1
-	provides = systemd-tests
-	conflicts = systemd-tests
-	replaces = systemd-tests
+	depends = systemd=261
 
 pkgname = systemd-ukify
 	pkgdesc = Combine kernel and initrd into a signed Unified Kernel Image
-	depends = systemd=260.1
+	depends = systemd=261
 	depends = binutils
 	depends = python-cryptography
 	depends = python-pefile
