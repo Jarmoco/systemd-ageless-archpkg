@@ -138,6 +138,7 @@ pkgname = systemd
 	provides = nss-myhostname
 	provides = systemd-tools=261
 	provides = udev=261
+	provides = systemd
 	conflicts = nss-myhostname
 	conflicts = systemd-tools
 	conflicts = udev
@@ -198,6 +199,7 @@ pkgname = systemd-resolvconf
 pkgname = systemd-sysvcompat
 	pkgdesc = sysvinit compat for systemd
 	depends = systemd=261
+	provides = systemd-sysvcompat
 	conflicts = sysvinit
 	conflicts = systemd-sysvcompat
 	replaces = sysvinit
@@ -206,6 +208,9 @@ pkgname = systemd-sysvcompat
 pkgname = systemd-tests
 	pkgdesc = systemd tests
 	depends = systemd=261
+	provides = systemd-tests
+	conflicts = systemd-tests
+	replaces = systemd-tests
 
 pkgname = systemd-ukify
 	pkgdesc = Combine kernel and initrd into a signed Unified Kernel Image

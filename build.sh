@@ -111,15 +111,28 @@ handle_existing_systemd() {
     fi
 }
 
+ensure_chroot() {
+    local root="$CHROOT_DIR/root"
+
+    if [ ! -d "$root" ]; then
+        echo "  Creating chroot..."
+        sudo mkdir -p "$CHROOT_DIR"
+        sudo mkarchroot "$root" base-devel
+    fi
+
+    if [ ! -f "$root/etc/makepkg.conf" ]; then
+        echo -e "${YELLOW}  Root chroot incomplete, rebuilding...${NC}"
+        sudo rm -rf "$root"
+        sudo mkdir -p "$CHROOT_DIR"
+        sudo mkarchroot "$root" base-devel
+    fi
+}
+
 build_package() {
     echo -e "${YELLOW}[Build] Building package in clean chroot...${NC}"
     echo
 
-    if [ ! -d "$CHROOT_DIR/root" ]; then
-        echo "  Creating chroot..."
-        sudo mkdir -p "$CHROOT_DIR"
-        sudo mkarchroot "$CHROOT_DIR/root" base-devel
-    fi
+    ensure_chroot
 
     if ! makechrootpkg -c -r "$CHROOT_DIR" -- --skippgpcheck; then
         echo -e "${RED}[Error] Build failed!${NC}"
