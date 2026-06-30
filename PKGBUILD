@@ -18,7 +18,7 @@ pkgname=('systemd'
 # Upstream versioning is incompatible with pacman's version comparisons, one
 # way or another. We use proper version for pacman here (no dash for rc
 # release!), and change in source array below.
-pkgver=261
+pkgver=261.1
 pkgrel=1
 arch=('x86_64')
 license=('LGPL-2.1-or-later')
