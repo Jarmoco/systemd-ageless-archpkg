@@ -1,126 +1,104 @@
 # systemd-ageless
 
-An Arch Linux package for the [liberated systemd fork](https://github.com/Jeffrey-Sardina/systemd)
+An Arch Linux package for the [liberated systemd fork](https://github.com/Jeffrey-Sardina/systemd).
 
-## Overview
+> **This repository is sunset.** It is no longer maintained, and the packages in
+> `pkg/` are frozen at `261.1-1` (June 2026). If you use Arch Linux, install the
+> [AUR packages](https://aur.archlinux.org/packages/systemd-liberated-git)
+> instead — they build from upstream `main` and update with `yay -Syu`.
+> The upstream project also lists the AUR package as the community option.
+> The files here remain for reference only.
 
-This is essentially a fork of [the systemd package](https://gitlab.archlinux.org/archlinux/packaging/packages/systemd) in the Arch Linux core repository.
-Read the [quick start](#quick-start) section to learn how to install the package.
+## I haven't installed this yet
 
-In case you want to build the package locally, I included a script to pull from upstream, build the package and set up a local repository (build.sh).
-
-## Quick start
-The pkg/ directory contains a pacman repo that provides the packages for the liberated systemd fork. You can add it to your `/etc/pacman.conf` using the following methods:
-
-### Option 1: One-liner
-
-```bash
-curl -sSL https://jarmoco.github.io/systemd-ageless-archpkg/setup-repo.sh | sudo bash
-```
-
-### Option 2: Manual
-
-Add this to your `/etc/pacman.conf`, **before** (IMPORTANT!) the `[core]` repository:
-
-```
-[systemd-ageless]
-SigLevel = Optional TrustAll
-Server = https://jarmoco.github.io/systemd-ageless-archpkg/pkg/
-```
-
-After adding the repository, you can update your system:
+Use the AUR. Install an AUR helper if needed, then build and install:
 
 ```bash
-sudo pacman -Syu
+sudo pacman -S --needed yay          # or paru
+yay -S systemd-liberated-git systemd-liberated-libs-git systemd-liberated-sysvcompat-git
 ```
-You will be asked to confirm the replacement of the official systemd packages with the liberated ones.
 
-Reboot after you are done.
+Add `systemd-liberated-resolvconf-git`, `systemd-liberated-tests-git`, and
+`systemd-liberated-ukify-git` only if you actually need those split packages.
 
+If the build fails with `Program 'bindgen' not found`, install `rust-bindgen`
+(`sudo pacman -S rust-bindgen`) and retry — the AUR PKGBUILD has not yet added it
+as a build dependency.
 
-## Building locally
+Reboot, then check:
 
 ```bash
-./build.sh
+systemctl --version    # e.g. systemd 263.r<commit>-1-arch
 ```
 
-This will:
-1. Install devtools and namcap if missing
-2. Clean corrupted systemd packages from cache
-3. Build systemd in a clean chroot
-4. Run namcap checks on PKGBUILD and packages
-5. Copy packages to pkg/
-6. Update the local repository database
-7. Add the repository to /etc/pacman.conf
-8. Print summary with next steps
+## I already installed from this repository
 
+**Before you start:** back up your data and have a bootable Arch USB ready.
+Changing systemd can leave the machine unbootable;
 
-## Repository Configuration
+1. Install the AUR replacements. This repository can stay enabled while building:
 
-The build script should set this up automatically. You may need to adjust the `Server` path if you want to serve packages over network.
+   ```bash
+   sudo pacman -S --needed rust-bindgen   # needed by current upstream main
+   yay -S systemd-liberated-git systemd-liberated-libs-git systemd-liberated-sysvcompat-git
+   ```
 
-In case it didn't work, after running `build.sh`, add this to your `/etc/pacman.conf`, **before** the `[core]` repository:
+   If yay fails with `removing systemd breaks dependency 'systemd=261.1' required
+   by systemd-sysvcompat`, it installed the packages in the wrong order. Build all
+   targets, then install all three tarballs in **one** transaction:
 
-```
-[systemd-ageless]
-SigLevel = Optional TrustAll
-Server = http://localhost:8181
-```
+   ```bash
+   cd ~/.cache/yay/systemd-liberated-git
+   sudo pacman -U \
+     systemd-liberated-libs-git-*.pkg.tar.zst \
+     systemd-liberated-git-*.pkg.tar.zst \
+     systemd-liberated-sysvcompat-git-*.pkg.tar.zst
+   ```
 
-### Serving packages locally
+   Answer yes to removing the old `systemd`, `systemd-libs`, and
+   `systemd-sysvcompat`. If you had other split packages from this repository,
+   install their `systemd-liberated-*-git` equivalents too.
 
-To serve packages to other machines on your network:
+2. Verify and rebuild the initramfs:
+
+   ```bash
+   pacman -Q | grep systemd
+   systemctl --version
+   sudo mkinitcpio -P
+   ```
+
+3. Disable this repository:
+
+   ```bash
+   sudo sed -i '/^\[systemd-ageless\]/,/^$/d' /etc/pacman.conf
+   sudo pacman -Sy          # -Sy, not -Syu
+   ```
+
+4. **Reboot.** Then confirm:
+
+   ```bash
+   systemctl --version
+   systemctl is-system-running
+   systemctl --failed
+   ```
+
+   `systemd-networkd-wait-online.service` can delay startup on NetworkManager
+   systems; if it does, disable it with
+   `sudo systemctl disable --now systemd-networkd-wait-online.service`.
+
+### Rollback
+
+Re-add the `[systemd-ageless]` block to `/etc/pacman.conf`, then:
 
 ```bash
-./host-repo.sh
-```
-
-## Build Script Options
-
-```bash
-./build.sh -y    # Non-interactive mode (assume yes to all prompts)
-./build.sh -h    # Show help
-```
-
-## Build Process
-
-1. **check_deps** — Verifies `devtools` and `namcap` are installed, installs if needed
-2. **handle_existing_systemd** — Warns if official systemd is installed (will be replaced)
-3. **clear_bad_cache** — Removes corrupted systemd packages from pacman cache
-4. **build_package** — Builds in clean chroot via `makechrootpkg`
-5. **run_namcap** — Lints PKGBUILD and packages for issues
-6. **update_srcinfo** — Generates `.SRCINFO` for AUR compatibility
-7. **setup_pkg_dir** — Ensures `pkg/` directory exists
-8. **cleanup_old_packages** — Copies new packages to `pkg/`
-9. **cleanup_build_artifacts** — Removes `.pkg.tar.zst` and `.log` from root
-10. **update_repo** — Updates repo database with `repo-add`
-11. **add_pacman_repo** — Adds repo to `/etc/pacman.conf`
-12. **print_summary** — Displays completion message and next steps
-
-## Files
-
-- `PKGBUILD` — Package build definition
-- `build.sh` — Build automation script
-- `setup-repo.sh` — Quick repo setup script (adds repo to pacman.conf)
-- `pkg/` — Built packages and repository database
-- `.SRCINFO` — Package metadata for AUR
-
-## Uninstalling
-
-```bash
-# Remove the repo from pacman.conf
-sudo sed -i '/^\[systemd-ageless\]/,/^$/d' /etc/pacman.conf
-
-# Update package database, so the original packages from [core] are available again
-sudo pacman -Sy
-
-# Clean up build directory
-rm -rf /var/lib/archbuild/extra-x86_64
-
-# Update your system
-sudo pacman -Su
-
-# Reboot to load the new systemd
+sudo pacman -Syy
+sudo pacman -S systemd systemd-libs systemd-sysvcompat
+sudo mkinitcpio -P
 reboot
 ```
 
+If pacman refuses to replace the AUR packages, remove them first:
+
+```bash
+sudo pacman -Rdd systemd-liberated-git systemd-liberated-libs-git systemd-liberated-sysvcompat-git
+```
